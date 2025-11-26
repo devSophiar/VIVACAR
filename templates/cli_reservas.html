@@ -1,0 +1,56 @@
+{% extends "base_painel.html" %}
+{% set tipo_usuario = 'cliente' %}
+
+{% block conteudo %}
+    
+    <div class="secao-reserva">
+        <div class="secao-titulo">ATIVO</div>
+        
+        {% for loc in ativas %}
+        <div class="card-reserva">
+            <div class="info-bloco">
+                <p><span class="info-label">GRUPO:</span> {{ loc.carro.grupo or 'N/A' }}</p>
+                <p><span class="info-label">CARRO:</span> {{ loc.carro.modelo }}</p>
+                </div>
+            <div class="info-bloco">
+                <p><span class="info-label">ANO:</span> {{ loc.carro.ano or 'N/A' }}</p>
+                <p><span class="info-label">PLACA:</span> {{ loc.carro.placa }}</p>
+            </div>
+            <div class="info-bloco">
+                <p><span class="info-label">DATA RETIRADA:</span> {{ loc.data_inicio.strftime('%d/%m/%Y') }}</p>
+                <p><span class="info-label">DATA DEVOLUÇÃO:</span> {{ loc.data_devolucao_prevista.strftime('%d/%m/%Y') }}</p>
+                <p><span class="info-label">LOCAL DEVOLUÇÃO:</span> VIVACAR Loja</p>
+            </div>
+        </div>
+        {% else %}
+        <p style="color: #888; margin-left: 10px;">Você não possui reservas ativas.</p>
+        {% endfor %}
+
+    </div>
+
+    <div class="secao-reserva">
+        <div class="secao-titulo">FINALIZADO</div>
+        
+        {% for loc in finalizadas %}
+        <div class="card-reserva finalizado">
+             <div class="info-bloco">
+                <p><span class="info-label">GRUPO:</span> {{ loc.carro.grupo or 'N/A' }}</p>
+                <p><span class="info-label">CARRO:</span> {{ loc.carro.modelo }}</p>
+            </div>
+            <div class="info-bloco">
+                <p><span class="info-label">ANO:</span> {{ loc.carro.ano or 'N/A' }}</p>
+                <p><span class="info-label">PLACA:</span> {{ loc.carro.placa }}</p>
+            </div>
+            <div class="info-bloco">
+                <p><span class="info-label">DATA RETIRADA:</span> {{ loc.data_inicio.strftime('%d/%m/%Y') }}</p>
+                <p><span class="info-label">DATA DEVOLUÇÃO:</span> {{ loc.data_devolucao_real.strftime('%d/%m/%Y') }}</p>
+                <p><span class="info-label">LOCAL DEVOLUÇÃO:</span> VIVACAR Loja</p>
+            </div>
+        </div>
+        {% else %}
+        <p style="color: #888; margin-left: 10px;">Você não possui reservas finalizadas.</p>
+        {% endfor %}
+
+    </div>
+
+{% endblock %}

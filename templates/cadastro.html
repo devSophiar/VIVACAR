@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>VIVACAR - Cadastro</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo-grande">VIVACAR</div>
+        <div class="subtitulo">aluguel de carros</div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div style="color: red; margin-bottom: 10px;">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <form class="form-box" action="{{ url_for('cadastro') }}" method="POST">
+            <h3>Crie sua conta</h3>
+            <div class="input-group">
+                <label>CPF</label>
+                <input type="text" name="cpf" required placeholder="000.000.000-00">
+            </div>
+            <div class="input-group">
+                <label>Email:</label>
+                <input type="email" name="email" required placeholder="exemplo@email.com">
+            </div>
+            <div class="input-group">
+                <label>Senha:</label>
+                <input type="password" name="senha" required>
+            </div>
+            
+            <button type="submit" class="btn-primario">Criar conta</button>
+            
+            <div class="link-secundario">
+                ou <a href="{{ url_for('login') }}">Entrar</a>
+            </div>
+        </form>
+
+        <div class="copyright">2025 PinkDrive</div>
+    </div>
+</body>
+</html>

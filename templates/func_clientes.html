@@ -1,0 +1,122 @@
+{% extends "base_painel.html" %}
+{% set tipo_usuario = 'funcionario' %}
+
+{% block conteudo %}
+    <h2 class="titulo-pagina">CLIENTES</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alerta alerta-{{ category }}">
+              {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="toolbar">
+        <input type="text" class="search-box" placeholder="Pesquisar">
+        <div>
+            <button class="btn-acao">Filtro <i class="fas fa-filter"></i></button>
+            <button id="btnNovoCliente" class="btn-acao btn-add" style="cursor: pointer;">+</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Email</th>
+                <th>CPF</th>
+                <th style="width: 150px;">Ações</th> </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td>{{ cliente.id }}</td>
+                <td>{{ cliente.email }}</td>
+                <td>{{ cliente.cpf }}</td>
+                <td>
+                    <button class="btn-tabela btn-azul" 
+                            onclick="abrirModalEditar('{{ cliente.id }}', '{{ cliente.email }}', '{{ cliente.cpf }}')">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    
+                    <a href="{{ url_for('excluir_cliente', id=cliente.id) }}" 
+                       class="btn-tabela btn-vermelho"
+                       onclick="return confirm('Tem certeza que deseja excluir este cliente?')">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">Nenhum cliente encontrado.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="modalCliente" class="modal-fundo">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModal('modalCliente')">&times;</span>
+            <h3 style="color: var(--cor-primaria); margin-bottom: 20px;">Novo Cliente</h3>
+            <form action="{{ url_for('adicionar_cliente') }}" method="POST" class="form-box" style="width: 100%;">
+                <div class="input-group"><label>CPF</label><input type="text" name="cpf" required></div>
+                <div class="input-group"><label>Email</label><input type="email" name="email" required></div>
+                <div class="input-group"><label>Senha Inicial</label><input type="text" name="senha" required></div>
+                <button type="submit" class="btn-primario" style="margin-top: 15px;">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalEditar" class="modal-fundo">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModal('modalEditar')">&times;</span>
+            <h3 style="color: var(--cor-primaria); margin-bottom: 20px;">Editar Cliente</h3>
+            
+            <form id="formEditar" method="POST" class="form-box" style="width: 100%;">
+                <div class="input-group"><label>CPF</label><input type="text" id="edit_cpf" name="cpf" required></div>
+                <div class="input-group"><label>Email</label><input type="email" id="edit_email" name="email" required></div>
+                <div class="input-group">
+                    <label>Nova Senha (opcional)</label>
+                    <input type="text" name="senha" placeholder="Deixe vazio para manter">
+                </div>
+                <button type="submit" class="btn-primario" style="margin-top: 15px;">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Funções genéricas para abrir/fechar
+        function fecharModal(idModal) {
+            document.getElementById(idModal).style.display = "none";
+        }
+
+        // Modal Novo Cliente
+        document.getElementById("btnNovoCliente").onclick = function() {
+            document.getElementById("modalCliente").style.display = "flex";
+        }
+
+        // Modal Editar Cliente (Essa lógica é importante)
+        function abrirModalEditar(id, email, cpf) {
+            // 1. Preenche os campos do formulário
+            document.getElementById('edit_email').value = email;
+            document.getElementById('edit_cpf').value = cpf;
+
+            // 2. Atualiza a URL do form para incluir o ID correto
+            // O Flask gera a URL base com '0', e nós trocamos pelo ID real com JS
+            var urlBase = "{{ url_for('editar_cliente', id=0) }}";
+            var urlFinal = urlBase.replace('0', id);
+            document.getElementById('formEditar').action = urlFinal;
+
+            // 3. Mostra o modal
+            document.getElementById("modalEditar").style.display = "flex";
+        }
+
+        // Fechar ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-fundo')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+{% endblock %}

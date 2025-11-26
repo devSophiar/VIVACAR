@@ -1,0 +1,167 @@
+{% extends "base_painel.html" %}
+{% set tipo_usuario = 'funcionario' %}
+
+{% block conteudo %}
+    <h2 class="titulo-pagina">Carros disponíveis</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alerta alerta-{{ category }}">
+              {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    
+    <div class="toolbar">
+        <input type="text" class="search-box" placeholder="Pesquisar">
+        <div>
+            <button class="btn-acao">Filtro <i class="fas fa-filter"></i></button>
+            <button id="btnNovoCarro" class="btn-acao btn-add" style="cursor: pointer;">+</button>
+        </div>
+    </div>
+
+    <div class="grid-carros">
+        
+        {% for carro in carros %}
+        <div class="card-carro">
+            
+            {% if carro.foto_url %}
+                <img src="{{ carro.foto_url }}" alt="Foto do {{ carro.modelo }}" class="card-carro-img">
+            {% else %}
+                <div class="card-img-placeholder"><i class="fas fa-car fa-3x"></i></div>
+            {% endif %}
+
+            <h3>{{ carro.modelo }}</h3>
+            <p style="font-size:0.8rem; color:#666; margin-bottom:5px;">GRUPO: {{ carro.grupo }}</p>
+            <p style="font-size: 1rem; color: #333; font-weight: bold; margin-bottom: 10px;">
+                R$ {{ "%.2f"|format(carro.valor_diaria or 0) }} / dia
+            </p>
+            
+            {% if carro.status == 'Disponivel' %}
+                <span class="tag-status status-disponivel">Disponivel</span>
+            {% else %}
+                <span class="tag-status status-locado">Locado</span>
+            {% endif %}
+
+            <span style="float:right; color:#888;">{{ carro.ano }}</span>
+            <div style="margin-top:10px; font-size:0.8rem;">PLACA: {{ carro.placa }}</div>
+
+            <div class="card-botoes">
+                
+                <button class="btn-tabela btn-azul"
+                        data-id="{{ carro.id }}"
+                        data-modelo="{{ carro.modelo | e }}"
+                        data-placa="{{ carro.placa | e }}"
+                        data-grupo="{{ carro.grupo or '' | e }}"
+                        data-ano="{{ carro.ano or '' }}"
+                        data-valor="{{ carro.valor_diaria or '' }}"
+                        data-foto="{{ carro.foto_url or '' | e }}"
+                        onclick="abrirModalEditarJS(this)">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                
+                <a href="{{ url_for('excluir_carro', id=carro.id) }}" 
+                class="btn-tabela btn-vermelho"
+                onclick="return confirm('Tem certeza que deseja excluir o carro {{ carro.modelo }} - {{ carro.placa }}?')">
+                    <i class="fas fa-trash"></i> Excluir
+                </a>
+            </div>
+
+        </div>
+
+        {% else %}
+        <p style="color: #666;">Nenhum carro cadastrado ainda.</p>
+        {% endfor %}
+    </div>
+
+    <div id="modalCarro" class="modal-fundo">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModal('modalCarro')">&times;</span>
+            <h3 style="color: var(--cor-primaria); margin-bottom: 20px;">Novo Carro</h3>
+            <form action="{{ url_for('adicionar_carro') }}" method="POST" class="form-box" style="width: 100%;">
+                <div class="input-group"><label>Modelo</label><input type="text" name="modelo" required placeholder="Ex: Towota W4"></div>
+                <div class="input-group"><label>Placa</label><input type="text" name="placa" required placeholder="Ex: ABC-1234"></div>
+                <div class="input-group"><label>Valor Diária (R$)</label><input type="number" step="0.01" name="valor_diaria" placeholder="Ex: 99.90"></div>
+                <div class="input-group"><label>Link da Foto (URL)</label><input type="text" name="foto_url" placeholder="https://.../imagem.png"></div>
+                <div class="input-group"><label>Grupo</label><input type="text" name="grupo" placeholder="Ex: A"></div>
+                <div class="input-group"><label>Ano</label><input type="number" name="ano" placeholder="Ex: 2022"></div>
+                <button type="submit" class="btn-primario" style="margin-top: 15px;">Cadastrar Carro</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalEditarCarro" class="modal-fundo">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModal('modalEditarCarro')">&times;</span>
+            <h3 style="color: var(--cor-primaria); margin-bottom: 20px;">Editar Carro</h3>
+            
+            <form id="formEditarCarro" method="POST" class="form-box" style="width: 100%;">
+                <div class="input-group"><label>Modelo</label><input type="text" id="edit_modelo" name="modelo" required></div>
+                <div class="input-group"><label>Placa</label><input type="text" id="edit_placa" name="placa" required></div>
+                <div class="input-group"><label>Valor Diária (R$)</label><input type="number" step="0.01" id="edit_valor_diaria" name="valor_diaria"></div>
+                <div class="input-group"><label>Link da Foto (URL)</label><input type="text" id="edit_foto_url" name="foto_url"></div>
+                <div class="input-group"><label>Grupo</label><input type="text" id="edit_grupo" name="grupo"></div>
+                <div class="input-group"><label>Ano</label><input type="number" id="edit_ano" name="ano"></div>
+                
+                <button type="submit" class="btn-primario" style="margin-top: 15px;">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
+
+<script>
+        // Função genérica para fechar
+        function fecharModal(idModal) {
+            document.getElementById(idModal).style.display = "none";
+        }
+
+        // Modal Novo Carro
+        document.getElementById("btnNovoCarro").onclick = function() {
+            document.getElementById("modalCarro").style.display = "flex";
+        }
+
+        // === CORREÇÃO: Função "Helper" para ler os dados do botão ===
+        function abrirModalEditarJS(botao) {
+            // 1. Pega os dados dos atributos 'data-*'
+            const id = botao.dataset.id;
+            const modelo = botao.dataset.modelo;
+            const placa = botao.dataset.placa;
+            const grupo = botao.dataset.grupo;
+            const ano = botao.dataset.ano;
+            const valor = botao.dataset.valor;
+            const foto = botao.dataset.foto;
+
+            // 2. Chama sua função original com os dados lidos
+            abrirModalEditar(id, modelo, placa, grupo, ano, valor, foto);
+        }
+
+        // Sua função original (sem alterações)
+        function abrirModalEditar(id, modelo, placa, grupo, ano, valor_diaria, foto_url) {
+            // 1. Preenche os campos do formulário
+            document.getElementById('edit_modelo').value = modelo;
+            document.getElementById('edit_placa').value = placa;
+            document.getElementById('edit_grupo').value = grupo;
+            document.getElementById('edit_ano').value = ano;
+            document.getElementById('edit_valor_diaria').value = valor_diaria;
+            document.getElementById('edit_foto_url').value = foto_url;
+
+            // 2. Atualiza a URL do form para incluir o ID
+            var urlBase = "{{ url_for('editar_carro', id=0) }}";
+            var urlFinal = urlBase.replace('0', id);
+            document.getElementById('formEditarCarro').action = urlFinal;
+
+            // 3. Mostra o modal
+            document.getElementById("modalEditarCarro").style.display = "flex";
+        }
+
+        // Fechar ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-fundo')) {
+                event.target.style.display = "none";
+            }
+        }
+    </script>
+    
+{% endblock %}

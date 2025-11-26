@@ -1,0 +1,131 @@
+/* Variáveis e Reset */
+:root {
+    --cor-primaria: #ff47ac; /* Rosa PinkDrive */
+    --cor-fundo-sidebar: #585858;
+    --cor-texto-sidebar: #ffffff;
+    --cor-fundo: #f4f4f4;
+    --cor-borda: #ddd;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+body { background-color: var(--cor-fundo); display: flex; height: 100vh; }
+
+/* --- Login e Cadastro (Centralizado) --- */
+.auth-container {width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: white;}
+.logo-grande { font-size: 2rem; font-weight: bold; color: var(--cor-primaria); margin-bottom: 5px; }
+.subtitulo { color: #666; margin-bottom: 30px; font-size: 0.9rem; }
+.copyright { position: absolute; bottom: 20px; color: #aaa; font-size: 0.8rem; }
+
+.form-box { width: 300px; display: flex; flex-direction: column; gap: 15px; }
+.input-group label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; }
+.input-group input {
+    width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+}
+.btn-primario { background: var(--cor-primaria); color: white; border: none; padding: 10px; border-radius: 4px;
+cursor: pointer; font-weight: bold; text-align: center; text-decoration: none;}
+
+.link-secundario { text-align: center; font-size: 0.9rem; color: #666; }
+.link-secundario a { color: var(--cor-primaria); text-decoration: none; }
+
+/* --- Layout do Painel (Sidebar + Conteudo) --- */
+.painel-wrapper { display: flex; width: 100%; height: 100%; }
+
+/* Sidebar */
+.sidebar {width: 250px; background-color: var(--cor-fundo-sidebar); color: var(--cor-texto-sidebar); display: flex; flex-direction: column;
+padding: 20px; justify-content: space-between; }
+
+.sidebar-header h2 { color: var(--cor-primaria); font-size: 1.5rem; }
+.sidebar-header span { font-size: 0.8rem; color: #ff7ee7; }
+.menu-nav { margin-top: 40px; display: flex; flex-direction: column; gap: 10px; }
+.menu-item {padding: 10px 15px; color: #ccc; text-decoration: none; display: block; border-radius: 4px;}
+.menu-item:hover, .menu-item.ativo { background-color: var(--cor-primaria); color: white; }
+
+
+/* Conteúdo Principal */
+.conteudo-principal { flex: 1; overflow-y: auto; /* Mantém a rolagem SÓ do conteúdo */ display: flex; flex-direction: column; }
+
+.top-bar {display: flex; justify-content: space-between; align-items: center; background-color: var(--cor-primaria); /* Fundo rosa */
+color: white; padding: 15px 30px; /* Aumenta o padding vertical */ margin-bottom: 20px; }
+
+.top-bar-logo { font-size: 1.5rem; font-weight: bold; color: rgb(255, 255, 255); }
+.breadcrumbs { color: #666; }
+.user-profile { display: flex; align-items: center; gap: 10px; }
+.avatar-circle { width: 35px; height: 35px; background: #ccc; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+/* Elementos de UI (Tabelas, Cards, Botões) */
+.titulo-pagina { font-size: 1.5rem; color: var(--cor-primaria); margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+
+.toolbar { display: flex; justify-content: space-between; margin-bottom: 20px; }
+.search-box { padding: 8px; border: 1px solid #ccc; width: 300px; }
+.btn-acao { padding: 8px 15px; background: #eee; border: 1px solid #ccc; cursor: pointer; margin-left: 5px;}
+.btn-add { background: var(--cor-primaria); color: white; border: none; }
+
+/* Tabela */
+table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+th { background: #f9f9f9; text-align: left; padding: 12px; border-bottom: 2px solid #ddd; color: #555; }
+td { padding: 12px; border-bottom: 1px solid #eee; }
+
+/* Grid de Carros */
+.grid-carros { display: flex; gap: 20px; flex-wrap: wrap; }
+.card-carro { background: white; padding: 15px; border-radius: 8px; width: 250px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+
+.card-carro-img { width: 100%; height: 150px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; background: #eee;}
+
+.card-img-placeholder { height: 150px; background: #eee; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+color: #aaa; border-radius: 4px;}
+
+.tag-status { padding: 4px 8px; font-size: 0.75rem; border-radius: 4px; display: inline-block; margin-bottom: 5px;}
+.status-disponivel { background: #e8f5e9; color: #2e7d32; }
+.status-locado { background: #ffebee; color: #c62828; }
+.btn-editar { display: block; width: 100%; text-align: center; margin-top: 10px; background: #333; color: white; padding: 5px; text-decoration: none; font-size: 0.9rem;}
+
+/* Reservas  */
+.secao-reserva { margin-bottom: 30px; }
+.secao-titulo { color: #888; font-weight: bold; margin-bottom: 10px; }
+.card-reserva { background: white; border-left: 5px solid var(--cor-primaria); padding: 20px; margin-bottom: 15px;
+display: flex; justify-content: space-between; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+
+.card-reserva.finalizado { border-left-color: #555; opacity: 0.8; }
+.info-bloco p { margin-bottom: 5px; font-size: 0.9rem; color: #333; }
+.info-label { font-weight: bold; color: #555; }
+.alerta {padding: 10px; margin-bottom: 15px; background: #fff; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.alerta-erro { color: red; font-weight: bold; }
+.alerta-sucesso { color: green; font-weight: bold; }
+
+
+/* --- MODAL  */
+.modal-fundo { display: none; /* Escondido por padrão */ position: fixed;  z-index: 1000;  left: 0; top: 0; width: 100%; height: 100%;
+background-color: rgba(0,0,0,0.5); /* Fundo preto transparente */ align-items: center; justify-content: center; }
+
+.modal-conteudo {background-color: white; padding: 30px; border-radius: 8px; width: 400px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+position: relative; animation: aparecer 0.3s; }
+
+.fechar-modal { position: absolute; top: 10px; right: 15px; color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+
+.fechar-modal:hover { color: var(--cor-primaria); }
+
+@keyframes aparecer {
+    from {transform: translateY(-20px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+}
+
+
+/* Botões da Tabela */
+.btn-tabela { padding: 5px 10px; border: none; border-radius: 4px; color: white; font-size: 0.8rem; cursor: pointer; text-decoration: none;
+margin-right: 5px; }
+
+.btn-azul { background-color: #1976D2; }
+.btn-azul:hover { background-color: #1565C0; }
+
+.btn-vermelho { background-color: #d32f2f; }
+.btn-vermelho:hover { background-color: #c62828; }
+
+/* Container para os botões de ação do card */
+.card-botoes {display: flex;justify-content: space-between;gap: 5px;margin-top: 15px;}
+
+/* Faz os botões ocuparem o espaço dividido */
+.card-botoes .btn-tabela {flex: 1; padding: 8px 5px; margin-right: 0; font-size: 0.85rem;}
+.btn-verde { background-color: #2e7d32; }
+.btn-verde:hover { background-color: #1b5e20; }
+.content-wrapper { flex: 1; padding: 30px;}
+.footer-principal { background-color: var(--cor-primaria); color: white; padding: 10px 30px; text-align: center; font-weight: bold;font-size: 0.9rem; }

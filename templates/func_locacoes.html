@@ -1,0 +1,178 @@
+{% extends "base_painel.html" %}
+{% set tipo_usuario = 'funcionario' %}
+
+{% block conteudo %}
+    <h2 class="titulo-pagina">LOCAÇÕES ATIVAS</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alerta alerta-{{ category }}">
+              {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="toolbar">
+        <input type="text" class="search-box" placeholder="Pesquisar">
+        <div>
+            <button class="btn-acao">Filtro</button>
+            <button id="btnNovaLocacao" class="btn-acao btn-add" style="cursor: pointer;">+</button>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Cliente</th> <th>Carro</th> <th>Placa</th> <th>Km inicial</th>
+                <th>Data Início</th> <th>Prev. Devolução</th> <th>Preço (R$)</th> <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for loc in locacoes %}
+            <tr>
+                <td>{{ loc.cliente.email }}</td> <td>{{ loc.carro.modelo }}</td> <td>{{ loc.carro.placa }}</td>
+                <td>{{ loc.km_inicio or 'N/A' }}</td>
+                <td>{{ loc.data_inicio.strftime('%d/%m/%Y') }}</td>
+                <td>{{ loc.data_devolucao_prevista.strftime('%d/%m/%Y') }}</td>
+                <td>{{ "%.2f"|format(loc.preco_total) }}</td>
+                <td>
+                    <button class="btn-tabela btn-verde" onclick="abrirModalDevolucao('{{ loc.id }}')">
+                        Devolver
+                    </button>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8">Nenhuma locação ativa no momento.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="modalLocacao" class="modal-fundo">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModal('modalLocacao')">&times;</span>
+            <h3 style="color: var(--cor-primaria); margin-bottom: 20px;">Registrar Nova Locação</h3>
+            <form action="{{ url_for('adicionar_locacao') }}" method="POST" class="form-box" style="width: 100%;">
+                <div class="input-group">
+                    <label>Cliente</label>
+                    <select name="cliente_id" required>
+                        <option value="">Selecione um cliente...</option>
+                        {% for c in clientes %}
+                            <option value="{{ c.id }}">{{ c.email }} (CPF: {{ c.cpf }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Carro Disponível</label>
+                    <select name="carro_id" id="select_carro" required>
+                        <option value="">Selecione um carro...</option>
+                        {% for carro in carros_disponiveis %}
+                            <option value="{{ carro.id }}" data-diaria="{{ carro.valor_diaria or 0 }}">
+                                {{ carro.modelo }} ({{ carro.placa }}) - R$ {{ "%.2f"|format(carro.valor_diaria) }}/dia
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group"> <label>Km Atual</label> <input type="number" name="km_inicio" placeholder="Km no painel do carro"> </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="input-group" style="flex: 1;"> <label>Data Início</label> <input type="date" id="data_inicio" name="data_inicio" required> </div>
+                    <div class="input-group" style="flex: 1;"> <label>Data Fim</label> <input type="date" id="data_fim" name="data_fim" required> </div>
+                </div>
+                <hr style="margin: 15px 0; border-top: 1px solid #eee;">
+                <div style="text-align: center;">
+                    <h4 style="color: #666;">Valor Total Estimado:</h4>
+                    <h3 id="valor_total_display" style="color: var(--cor-primaria); margin: 5px 0 15px 0;">R$ 0.00</h3>
+                </div>
+                <button type="submit" class="btn-primario">Registrar Locação</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="modalDevolucao" class="modal-fundo">
+        <div class="modal-conteudo">
+            <span class="fechar-modal" onclick="fecharModal('modalDevolucao')">&times;</span>
+            <h3 style="color: var(--cor-primaria); margin-bottom: 20px;">Registrar Devolução</h3>
+            
+            <form id="formDevolucao" method="POST" class="form-box" style="width: 100%;">
+                <div class="input-group">
+                    <label>Data da Devolução</label>
+                    <input type="date" id="devolucao_data" name="data_devolucao_real" required>
+                </div>
+                <div class="input-group">
+                    <label>Km Final</label>
+                    <input type="number" name="km_final" placeholder="Km no painel" required>
+                </div>
+                <div class="input-group">
+                    <label>Observações</label>
+                    <textarea name="obs" rows="3" placeholder="Ex: Tanque cheio, pequeno arranhão..."></textarea>
+                </div>
+                <button type="submit" class="btn-primario" style="margin-top: 15px;">Registrar Devolução</button>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Lógica Geral ---
+        function fecharModal(idModal) {
+            document.getElementById(idModal).style.display = "none";
+        }
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-fundo')) {
+                event.target.style.display = "none";
+            }
+        }
+
+        // --- Lógica Modal Nova Locação ---
+        document.getElementById("btnNovaLocacao").onclick = function() {
+            document.getElementById("modalLocacao").style.display = "flex";
+        }
+        const carroSelect = document.getElementById('select_carro');
+        const inicioInput = document.getElementById('data_inicio');
+        const fimInput = document.getElementById('data_fim');
+        const displayTotal = document.getElementById('valor_total_display');
+        
+        if (carroSelect) carroSelect.addEventListener('change', calcularTotal);
+        if (inicioInput) inicioInput.addEventListener('change', calcularTotal);
+        if (fimInput) fimInput.addEventListener('change', calcularTotal);
+        
+        function calcularTotal() { /* ... (função de cálculo de preço) ... */ 
+            const selectedOption = carroSelect.options[carroSelect.selectedIndex];
+            const diaria = parseFloat(selectedOption.dataset.diaria);
+            let hoje = new Date().toISOString().split('T')[0];
+            if (!inicioInput.value) { inicioInput.value = hoje; }
+            const dataInicio = new Date(inicioInput.value);
+            const dataFim = new Date(fimInput.value);
+            let dias = 0; let total = 0;
+            if (!isNaN(diaria) && diaria > 0 && !isNaN(dataFim.getTime())) {
+                if (dataFim < dataInicio) {
+                    displayTotal.style.color = 'red';
+                    displayTotal.innerText = 'Data de devolução inválida';
+                    return; 
+                }
+                const diffTime = dataFim.getTime() - dataInicio.getTime();
+                dias = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (dias <= 0) { dias = 1; }
+                total = dias * diaria;
+            }
+            displayTotal.style.color = 'var(--cor-primaria)';
+            displayTotal.innerText = 'R$ ' + total.toFixed(2);
+        }
+
+        // --- LÓGICA MODAL DEVOLUÇÃO (NOVO) ---
+        function abrirModalDevolucao(locacaoId) {
+            // 1. Seta a data de hoje no campo de data
+            let hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('devolucao_data').value = hoje;
+
+            // 2. Atualiza a URL do form para o ID da locação
+            var urlBase = "{{ url_for('finalizar_devolucao', locacao_id=0) }}";
+            var urlFinal = urlBase.replace('0', locacaoId);
+            document.getElementById('formDevolucao').action = urlFinal;
+            
+            // 3. Mostra o modal
+            document.getElementById("modalDevolucao").style.display = "flex";
+        }
+    </script>
+{% endblock %}

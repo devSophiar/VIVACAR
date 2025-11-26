@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>VIVACAR - Painel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+</head>
+
+<body>
+    <div class="painel-wrapper">
+        <div class="sidebar">
+            <div>
+
+                <nav class="menu-nav">
+                    {% if tipo_usuario == 'funcionario' %}
+                        <a href="{{ url_for('func_home') }}" class="menu-item {{ 'ativo' if page == 'home' else '' }}">HOME</a>
+                        <a href="{{ url_for('func_clientes') }}" class="menu-item {{ 'ativo' if page == 'clientes' else '' }}">CLIENTES</a>
+                        <a href="{{ url_for('func_carros') }}" class="menu-item {{ 'ativo' if page == 'carros' else '' }}">CARROS</a>
+                        <a href="{{ url_for('func_locacoes') }}" class="menu-item {{ 'ativo' if page == 'locacoes' else '' }}">LOCAÇÕES</a>
+                        <a href="{{ url_for('func_devolucoes') }}" class="menu-item {{ 'ativo' if page == 'devolucoes' else '' }}">DEVOLUÇÕES</a>
+                    {% else %}
+                        <a href="{{ url_for('cli_home') }}" class="menu-item {{ 'ativo' if page == 'home' else '' }}">HOME</a>
+                        <a href="{{ url_for('cli_reservas') }}" class="menu-item {{ 'ativo' if page == 'reservas' else '' }}">MINHAS RESERVAS</a>
+                    {% endif %}
+                </nav>
+            </div>
+
+            <div>
+                <a href="{{ url_for('logout') }}" class="menu-item" style="margin-bottom: 50px;">SAIR</a>
+
+            </div>
+        </div>
+
+            <div class="conteudo-principal">
+                <div class="top-bar">
+
+                    <div class="top-bar-logo">
+                    <h3>VIVACAR</h3>
+                    <small>aluguel de carros</small></div>
+                    <div class="user-profile">
+                        <i class="fas fa-bell" style="color:#ccc"></i>
+                        <div class="avatar-circle"><i class="fas fa-user"></i></div>
+                    </div>
+                </div>
+                <div class="breadcrumbs">Home {{ '-> ' + page.capitalize() if page != 'home' else '' }}</div>
+                <main class="content-wrapper">
+                {% block conteudo %}{% endblock %}
+                </main>
+
+                <footer class="footer-principal">
+                    2025 VIVACAR
+                </footer>
+
+        </div>
+    </div>
+</body>
+</html>

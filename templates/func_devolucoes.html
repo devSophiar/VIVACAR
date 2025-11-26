@@ -1,0 +1,40 @@
+{% extends "base_painel.html" %}
+{% set tipo_usuario = 'funcionario' %}
+
+{% block conteudo %}
+    <h2 class="titulo-pagina">Devoluções</h2>
+    
+    <div class="toolbar">
+        <input type="text" class="search-box" placeholder="Pesquisar">
+        <button class="btn-acao">Filtro</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Carro</th>
+                <th>Data Devolução</th>
+                <th>OBS</th>
+                <th>Diárias</th>
+                <th>Preço Total (R$)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dev in devolucoes %}
+            <tr>
+                <td>{{ dev.id }}</td>
+                <td>{{ dev.cliente.email }}</td>
+                <td>{{ dev.carro.modelo }}</td>
+                <td>{{ dev.data_devolucao_real.strftime('%d/%m/%Y') }}</td>
+                <td>{{ dev.obs or 'N/A' }}</td>
+                <td>{{ dev.diarias_final }}</td>
+                <td>{{ "%.2f"|format(dev.valor_final) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">Nenhuma devolução registrada.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
